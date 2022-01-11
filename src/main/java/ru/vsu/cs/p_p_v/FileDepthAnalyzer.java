@@ -12,34 +12,31 @@ public class FileDepthAnalyzer {
         List<File> maxDepthFiles = getFilesWithDepth(path, 0, maxDepth);
 
         for (File f : maxDepthFiles) {
-            callback.accept("Depth " + (maxDepth - 1) + ": " + f.getPath());
+            callback.accept("Depth " + maxDepth + ": " + f.getPath());
         }
     }
 
-    private static int getMaxDepth(String path, int currentDepth) {
+    public static int getMaxDepth(String path, int currentDepth) {
         File dir = new File(path);
         File[] filesInDirectory = dir.listFiles();
 
-        if (filesInDirectory == null)
+        if (filesInDirectory == null || filesInDirectory.length == 0)
             return 0;
 
-        currentDepth++;
-        int maxDepth = 0;
+        int maxDepth = currentDepth;
+
         for (File f : filesInDirectory) {
             if (f.isDirectory()) {
-                int dirDepth = getMaxDepth(f.getPath(), currentDepth);
+                int dirDepth = getMaxDepth(f.getPath(), currentDepth + 1);
                 if (dirDepth > maxDepth)
                     maxDepth = dirDepth;
-            } else {
-                if (currentDepth > maxDepth)
-                    maxDepth = currentDepth;
             }
         }
 
         return maxDepth;
     }
 
-    private static List<File> getFilesWithDepth(String path, int currentDepth, int neededDepth) {
+    public static List<File> getFilesWithDepth(String path, int currentDepth, int neededDepth) {
         List<File> neededFiles = new ArrayList<>();
 
         File dir = new File(path);
@@ -48,14 +45,12 @@ public class FileDepthAnalyzer {
         if (filesInDirectory == null)
             return neededFiles;
 
-        currentDepth++;
-        int maxDepth = 0;
         for(File f : filesInDirectory) {
             if (currentDepth == neededDepth)
                 neededFiles.add(f);
 
             if (f.isDirectory())
-                neededFiles.addAll(getFilesWithDepth(f.getPath(), currentDepth, neededDepth));
+                neededFiles.addAll(getFilesWithDepth(f.getPath(), currentDepth + 1, neededDepth));
         }
 
         return neededFiles;
